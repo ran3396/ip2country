@@ -14,7 +14,7 @@ type Config struct {
 func LoadConfig() Config {
 	return Config{
 		Port:      getEnv("PORT", "8080"),
-		RateLimit: getEnvAsInt("RATE_LIMIT", 10),
+		RateLimit: getEnvAsInt("RATE_LIMIT", 100),
 		IPDBPath:  getEnv("IP_DB_PATH", "testdata/ipdb.csv"),
 	}
 }

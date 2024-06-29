@@ -38,14 +38,14 @@ IP2Country Service is a Go-based REST API that takes an IP address as input and 
 The service is configured using environment variables:
 
 - `PORT`: The port on which the service will listen (default: `8080`).
-- `RATE_LIMIT`: The maximum number of requests per second (default: `5`).
+- `RATE_LIMIT`: The maximum number of requests per second (default: `100`).
 - `IP_DB_PATH`: The path to the IP-to-country CSV database file.
 
 Example configuration:
 
 ```
 export PORT=8080
-export RATE_LIMIT=5
+export RATE_LIMIT=100
 export IP_DB_PATH=./testdata/ipdb.csv
 ```
 
@@ -55,7 +55,7 @@ export IP_DB_PATH=./testdata/ipdb.csv
 
    ```
    export PORT=8080
-   export RATE_LIMIT=5
+   export RATE_LIMIT=100
    export IP_DB_PATH=./testdata/ipdb.csv
    ```
 
@@ -110,7 +110,7 @@ go test ./...
 2. Run the Docker container:
 
    ```
-   docker run -p 8080:8080 -e PORT=8080 -e RATE_LIMIT=5 -e IP_DB_PATH=/path/to/ipdb.csv ip2country
+   docker run -p 8080:8080 -e PORT=8080 -e RATE_LIMIT=100 -e IP_DB_PATH=/path/to/ipdb.csv ip2country
    ```
 
 ### Project Structure
