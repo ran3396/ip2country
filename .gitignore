@@ -1,0 +1,40 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Output of the build process
+ip2country
+
+# Directory for Go modules
+vendor/
+
+# Go workspace file
+go.work
+
+# Go test binary and results
+*.test
+*.cover
+
+# Logs
+*.log
+
+# IDE/editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# MacOS
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+
+# Environment variable files
+.env
