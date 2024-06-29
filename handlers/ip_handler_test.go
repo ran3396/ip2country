@@ -3,12 +3,15 @@ package handlers
 import (
 	"encoding/json"
 	"ip2country/ipdb"
+	"ip2country/middleware"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
 // setupDatabase is a helper function to load the IP database for testing.
@@ -115,32 +118,45 @@ func TestRateLimiter(t *testing.T) {
 	db := setupDatabase(t)
 	os.Setenv("RATE_LIMIT", "1") // One request per second
 
-	handler := MakeFindCountryHandler(db)
-	testCases := []struct {
-		IP       string
-		Expected int
-	}{
-		{"2.22.233.255", http.StatusOK},
-		{"2.22.233.255", http.StatusTooManyRequests},
+	// Setting up the router with RateLimiter middleware
+	router := mux.NewRouter()
+	router.Use(middleware.RateLimiter(1))
+	router.HandleFunc("/v1/find-country", MakeFindCountryHandler(db))
+
+	// Creating the server
+	server := httptest.NewServer(router)
+	defer server.Close()
+
+	// Make the first request
+	req1, err := http.NewRequest("GET", server.URL+"/v1/find-country?ip=2.22.233.255", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp1, err := http.DefaultClient.Do(req1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp1.Body.Close()
+
+	if resp1.StatusCode != http.StatusOK {
+		t.Errorf("expected status 200 OK, got %v", resp1.StatusCode)
 	}
 
-	for _, tc := range testCases {
-		req, err := http.NewRequest("GET", "/v1/find-country?ip="+tc.IP, nil)
-		if err != nil {
-			t.Fatal(err)
-		}
-		rr := httptest.NewRecorder()
-
-		// Execute
-		handler.ServeHTTP(rr, req)
-
-		// Validate
-		if status := rr.Code; status != tc.Expected {
-			t.Errorf("handler returned wrong status code: got %v want %v",
-				status, tc.Expected)
-		}
-
-		// Add a delay to avoid immediate rate limit hit for next request
-		time.Sleep(1 * time.Second)
+	// Make the second request immediately
+	req2, err := http.NewRequest("GET", server.URL+"/v1/find-country?ip=2.22.233.255", nil)
+	if err != nil {
+		t.Fatal(err)
 	}
+	resp2, err := http.DefaultClient.Do(req2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp2.Body.Close()
+
+	if resp2.StatusCode != http.StatusTooManyRequests {
+		t.Errorf("expected status 429 Too Many Requests, got %v", resp2.StatusCode)
+	}
+
+	// Wait for 1 second to allow rate limiter to reset
+	time.Sleep(1 * time.Second)
 }
