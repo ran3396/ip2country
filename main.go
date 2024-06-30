@@ -5,11 +5,8 @@ import (
 	"net/http"
 
 	"ip2country/config"
-	"ip2country/handlers"
 	"ip2country/ipdb"
-	"ip2country/middleware"
-
-	"github.com/gorilla/mux"
+	"ip2country/routes"
 )
 
 func main() {
@@ -21,11 +18,8 @@ func main() {
 		log.Fatalf("Could not load IP database: %s\n", err.Error())
 	}
 
-	router := mux.NewRouter()
-	router.Use(middleware.RateLimiter(cfg.RateLimit))
-
-	// Pass the database to the handler
-	router.HandleFunc("/v1/find-country", handlers.MakeFindCountryHandler(db)).Methods("GET")
+	// Setup the router using the routes package
+	router := routes.SetupRoutes(db, cfg.RateLimit)
 
 	log.Println("Starting server on port", cfg.Port)
 	if err := http.ListenAndServe(":"+cfg.Port, router); err != nil {

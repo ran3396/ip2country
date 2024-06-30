@@ -69,7 +69,7 @@ The service will be available at `http://localhost:8080`.
 
 ### API Usage
 
-**Endpoint**: `/v1/find-country`
+**Endpoint**: `/api/v1/find-country`
 
 **Method**: `GET`
 
@@ -79,7 +79,7 @@ The service will be available at `http://localhost:8080`.
 **Example Request**:
 
 ```
-curl "http://localhost:8080/v1/find-country?ip=2.22.233.255"
+curl "http://localhost:8080/api/v1/find-country?ip=2.22.233.255"
 ```
 
 **Example Response**:

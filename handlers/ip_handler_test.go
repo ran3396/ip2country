@@ -30,7 +30,7 @@ func setupDatabase(t *testing.T) *ipdb.CSVDatabase {
 func TestFindCountryValidIP(t *testing.T) {
 	db := setupDatabase(t)
 
-	req, err := http.NewRequest("GET", "/v1/find-country?ip=2.22.233.255", nil)
+	req, err := http.NewRequest("GET", "/api/v1/find-country?ip=2.22.233.255", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -65,7 +65,7 @@ func TestFindCountryValidIP(t *testing.T) {
 func TestFindCountryMissingIP(t *testing.T) {
 	db := setupDatabase(t)
 
-	req, err := http.NewRequest("GET", "/v1/find-country", nil)
+	req, err := http.NewRequest("GET", "/api/v1/find-country", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +91,7 @@ func TestFindCountryMissingIP(t *testing.T) {
 func TestFindCountryInvalidIP(t *testing.T) {
 	db := setupDatabase(t)
 
-	req, err := http.NewRequest("GET", "/v1/find-country?ip=invalid_ip", nil)
+	req, err := http.NewRequest("GET", "/api/v1/find-country?ip=invalid_ip", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -121,14 +121,14 @@ func TestRateLimiter(t *testing.T) {
 	// Setting up the router with RateLimiter middleware
 	router := mux.NewRouter()
 	router.Use(middleware.RateLimiter(1))
-	router.HandleFunc("/v1/find-country", MakeFindCountryHandler(db))
+	router.HandleFunc("/api/v1/find-country", MakeFindCountryHandler(db))
 
 	// Creating the server
 	server := httptest.NewServer(router)
 	defer server.Close()
 
 	// Make the first request
-	req1, err := http.NewRequest("GET", server.URL+"/v1/find-country?ip=2.22.233.255", nil)
+	req1, err := http.NewRequest("GET", server.URL+"/api/v1/find-country?ip=2.22.233.255", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +143,7 @@ func TestRateLimiter(t *testing.T) {
 	}
 
 	// Make the second request immediately
-	req2, err := http.NewRequest("GET", server.URL+"/v1/find-country?ip=2.22.233.255", nil)
+	req2, err := http.NewRequest("GET", server.URL+"/api/v1/find-country?ip=2.22.233.255", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
